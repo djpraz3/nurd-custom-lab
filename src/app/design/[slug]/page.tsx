@@ -29,7 +29,6 @@ export default async function DesignPage({ params }: { params: Promise<{ slug: s
         depthIn: Number(product.depthIn),
       }}
       covers={byName("Cover")}
-      inserts={byName("Insert")}
       colors={byName("Color")}
       graphics={byName("Graphic")}
       rearFinishes={byName("Rear Finish")}

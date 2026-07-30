@@ -66,9 +66,6 @@ export const STARTER_PRODUCTS: StarterProduct[] = [
   },
 ];
 
-// "Standard insert" removed per request — None / Custom insert only.
-export const INSERT_CHOICES = ["None", "Custom insert"];
-
 // Only relevant when "Colored cover" is picked — the acrylic cover is
 // inherently clear, so color doesn't apply to it.
 export const COLOR_CHOICES = ["Black", "White", "Red", "Blue", "Green", "Purple", "Gold", "Silver"];
@@ -89,7 +86,6 @@ export const GRAPHIC_CHOICES = GRAPHIC_OPTIONS.map((g) => g.label);
 
 export const OPTION_PRICES = {
   cover: { "See-through acrylic (1mm)": 6, "Colored cover (1mm, non-see-through)": 0 } as Record<string, number>,
-  insert: { None: 0, "Custom insert": 6 } as Record<string, number>,
   color: {} as Record<string, number>,
   graphic: {} as Record<string, number>,
   rearFinish: { "Holographic back": 8, Regular: 0, Textured: 3 } as Record<string, number>,

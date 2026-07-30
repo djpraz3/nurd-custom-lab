@@ -1,9 +1,9 @@
 import { PrismaClient } from "@prisma/client";
-import { STARTER_PRODUCTS, OPTION_PRICES, INSERT_CHOICES, COLOR_CHOICES, GRAPHIC_CHOICES } from "../src/lib/products";
+import { STARTER_PRODUCTS, OPTION_PRICES, COLOR_CHOICES, GRAPHIC_CHOICES } from "../src/lib/products";
 
 // Old option groups that no longer exist at all (renamed or dropped outright)
 // — every row under these names should be removed regardless of product.
-const RETIRED_OPTION_NAMES = ["Closure", "Finish"];
+const RETIRED_OPTION_NAMES = ["Closure", "Finish", "Insert"];
 
 const prisma = new PrismaClient();
 
@@ -44,12 +44,6 @@ async function main() {
         optionType: "select",
         choiceLabel: label,
         priceAdjustment: OPTION_PRICES.cover[label] ?? 0,
-      })),
-      ...INSERT_CHOICES.map((label) => ({
-        optionName: "Insert",
-        optionType: "select",
-        choiceLabel: label,
-        priceAdjustment: OPTION_PRICES.insert[label] ?? 0,
       })),
       ...COLOR_CHOICES.map((label) => ({
         optionName: "Color",

@@ -30,21 +30,18 @@ export interface ProductForConfigure {
 export default function ConfigureStep({
   product,
   covers,
-  inserts,
   colors,
   graphics,
   rearFinishes,
 }: {
   product: ProductForConfigure;
   covers: OptionChoice[];
-  inserts: OptionChoice[];
   colors: OptionChoice[];
   graphics: OptionChoice[];
   rearFinishes: OptionChoice[];
 }) {
   const [quantity, setQuantity] = useState(MIN_QUANTITY);
   const [cover, setCover] = useState(covers[0]?.label ?? "");
-  const [insert, setInsert] = useState(inserts[0]?.label ?? "None");
   const [color, setColor] = useState(colors[0]?.label ?? "");
   const [graphic, setGraphic] = useState(graphics[0]?.label ?? "None");
   const [rearFinish, setRearFinish] = useState(rearFinishes[0]?.label ?? "");
@@ -55,13 +52,12 @@ export default function ConfigureStep({
   const coverIsColored = cover.toLowerCase().includes("colored");
 
   const coverPrice = covers.find((c) => c.label === cover)?.price ?? 0;
-  const insertPrice = inserts.find((i) => i.label === insert)?.price ?? 0;
   const graphicPrice = graphics.find((g) => g.label === graphic)?.price ?? 0;
   const rearFinishPrice = rearFinishes.find((r) => r.label === rearFinish)?.price ?? 0;
 
   const price = useMemo(
-    () => product.basePrice + coverPrice + insertPrice + graphicPrice + rearFinishPrice,
-    [product.basePrice, coverPrice, insertPrice, graphicPrice, rearFinishPrice]
+    () => product.basePrice + coverPrice + graphicPrice + rearFinishPrice,
+    [product.basePrice, coverPrice, graphicPrice, rearFinishPrice]
   );
 
   return (
@@ -118,10 +114,6 @@ export default function ConfigureStep({
             </Field>
           )}
 
-          <Field label="Insert type">
-            <Chips options={inserts} value={insert} onChange={setInsert} />
-          </Field>
-
           <Field label="Graphic">
             <GraphicGallery options={graphics} value={graphic} onChange={setGraphic} />
           </Field>
@@ -134,7 +126,6 @@ export default function ConfigureStep({
             {coverPrice > 0 && <PriceRow label={cover} value={coverPrice} />}
             {coverIsColored && color && <PriceRow label={`${color} color`} value={0} />}
             {rearFinish && <PriceRow label={`${rearFinish} finish`} value={rearFinishPrice} />}
-            {insert !== "None" && <PriceRow label={insert} value={insertPrice} />}
             {graphic !== "None" && <PriceRow label={`${graphic} graphic`} value={graphicPrice} />}
             <div className="h-px bg-border my-3.5" />
             <div className="flex justify-between items-baseline mb-1">
