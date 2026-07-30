@@ -73,18 +73,19 @@ export const INSERT_CHOICES = ["None", "Custom insert"];
 // inherently clear, so color doesn't apply to it.
 export const COLOR_CHOICES = ["Black", "White", "Red", "Blue", "Green", "Purple", "Gold", "Silver"];
 
-// Preset gallery — no upload, no franchise/copyrighted artwork, per the
-// spec's brand/legal section.
-export const GRAPHIC_CHOICES = [
-  "None",
-  "Minimal Frame",
-  "Dark Lab",
-  "Neon Grid",
-  "Retro Stripe",
-  "Comic Burst",
-  "Collector Case",
-  "Luxury Gold",
+// Preset photo gallery — no customer upload, no franchise/copyrighted
+// artwork, per the spec's brand/legal section. Images are placeholders
+// until real product photography is provided; swap the files under
+// /public/graphics/ and update `image` below when that's ready.
+export const GRAPHIC_OPTIONS: { label: string; image: string | null }[] = [
+  { label: "None", image: null },
+  { label: "Minimal Frame", image: "/graphics/minimal-frame.svg" },
+  { label: "Neon Grid", image: "/graphics/neon-grid.svg" },
+  { label: "Retro Stripe", image: "/graphics/retro-stripe.svg" },
+  { label: "Luxury Gold", image: "/graphics/luxury-gold.svg" },
 ];
+
+export const GRAPHIC_CHOICES = GRAPHIC_OPTIONS.map((g) => g.label);
 
 export const OPTION_PRICES = {
   cover: { "See-through acrylic (1mm)": 6, "Colored cover (1mm, non-see-through)": 0 } as Record<string, number>,

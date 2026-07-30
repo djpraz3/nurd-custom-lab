@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320">
+  <rect width="320" height="320" fill="#f5f3f7" />
+  <rect x="24" y="24" width="272" height="272" fill="none" stroke="#1a1723" stroke-width="3" />
+  <rect x="40" y="40" width="240" height="240" fill="none" stroke="#1a1723" stroke-width="1" />
+  <text x="160" y="168" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="600" fill="#1a1723">
+    Minimal Frame
+  </text>
+</svg>

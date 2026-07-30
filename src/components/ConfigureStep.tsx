@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { GRAPHIC_OPTIONS } from "@/lib/products";
 
 // Early on we only want people testing small orders, not bulk buys —
 // revisit once there's a real production pipeline behind this.
@@ -122,7 +123,7 @@ export default function ConfigureStep({
           </Field>
 
           <Field label="Graphic">
-            <Chips options={graphics} value={graphic} onChange={setGraphic} />
+            <GraphicGallery options={graphics} value={graphic} onChange={setGraphic} />
           </Field>
         </div>
 
@@ -199,6 +200,46 @@ function Chips({
           {o.price > 0 && <span className="text-inkFaint"> +${o.price.toFixed(2)}</span>}
         </button>
       ))}
+    </div>
+  );
+}
+
+function GraphicGallery({
+  options,
+  value,
+  onChange,
+}: {
+  options: OptionChoice[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="grid grid-cols-3 gap-2.5">
+      {options.map((o) => {
+        const image = GRAPHIC_OPTIONS.find((g) => g.label === o.label)?.image ?? null;
+        const selected = value === o.label;
+        return (
+          <button
+            key={o.label}
+            onClick={() => onChange(o.label)}
+            className={`rounded-lg border overflow-hidden text-left ${
+              selected ? "border-violet ring-1 ring-violet" : "border-border"
+            }`}
+          >
+            <div className="aspect-square bg-panel flex items-center justify-center">
+              {image ? (
+                <Image src={image} alt={o.label} width={160} height={160} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-[11px] text-inkFaint">No graphic</span>
+              )}
+            </div>
+            <div className="px-2 py-1.5 text-[11px] text-inkDim flex items-center justify-between">
+              <span>{o.label}</span>
+              {o.price > 0 && <span className="text-inkFaint">+${o.price.toFixed(2)}</span>}
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }
