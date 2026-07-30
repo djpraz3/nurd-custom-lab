@@ -1,0 +1,23 @@
+{
+  "productId": "etb-style-001",
+  "units": "inches",
+  "document": {
+    "width": 28.5,
+    "height": 18.25,
+    "bleed": 0.125,
+    "recommendedDpi": 300
+  },
+  "panels": [
+    {
+      "id": "front",
+      "name": "Front Panel",
+      "x": 8.25,
+      "y": 4.5,
+      "width": 7.5,
+      "height": 9.25,
+      "safeMargin": 0.25,
+      "required": true
+    }
+  ],
+  "_note": "This is illustrative only. Real dielines must come from the manufacturer's actual production files — never invent final production dimensions."
+}

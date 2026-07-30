@@ -1,0 +1,240 @@
+// Project.NURD Custom Lab — database schema
+// Mirrors "Section 22: Core Database Tables" from the product spec.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  DESIGNER
+  ADMIN
+}
+
+enum DesignStatus {
+  DRAFT
+  READY_FOR_REVIEW
+  SUBMITTED
+  CHANGES_REQUESTED
+  APPROVED
+  IN_PRODUCTION
+  COMPLETED
+  ARCHIVED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum ArtworkStatus {
+  AWAITING_REVIEW
+  CHANGES_REQUESTED
+  APPROVED
+  IN_PRODUCTION
+}
+
+enum FulfillmentStatus {
+  UNFULFILLED
+  IN_PRODUCTION
+  SHIPPED
+  COMPLETED
+}
+
+enum ProofApprovalStatus {
+  PENDING
+  APPROVED
+  CHANGES_REQUESTED
+}
+
+enum SenderType {
+  CUSTOMER
+  ADMIN
+  SYSTEM
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String?
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+  lastLogin    DateTime?
+
+  designs         Design[]
+  orders          Order[]
+  uploadedAssets  UploadedAsset[]
+  messages        Message[]
+
+  @@map("users")
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  description    String
+  basePrice      Decimal  @db.Decimal(10, 2)
+  active         Boolean  @default(true)
+  productType    String   // "etb-style" | "booster-bundle" | "booster-display" | custom
+  widthIn        Decimal  @db.Decimal(6, 3)
+  heightIn       Decimal  @db.Decimal(6, 3)
+  depthIn        Decimal  @db.Decimal(6, 3)
+  minQuantity    Int      @default(1)
+  productionDays String   // e.g. "7-10"
+  dielineJson    Json     // structured panel/bleed/safe-zone data, see /docs/dieline-example.json
+  model3dUrl     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  options    ProductOption[]
+  designs    Design[]
+  orderItems OrderItem[]
+
+  @@map("products")
+}
+
+model ProductOption {
+  id             String  @id @default(cuid())
+  productId      String
+  product        Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  optionName     String  // e.g. "Finish", "Closure", "Insert"
+  optionType     String  // "select" | "checkbox"
+  choiceLabel    String  // e.g. "Holographic laminate"
+  priceAdjustment Decimal @db.Decimal(10, 2) @default(0)
+  active         Boolean @default(true)
+
+  @@map("product_options")
+}
+
+model Design {
+  id         String       @id @default(cuid())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product      @relation(fields: [productId], references: [id])
+  designName String
+  status     DesignStatus @default(DRAFT)
+  currentVersion Int      @default(1)
+  previewUrl String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  versions       DesignVersion[]
+  uploadedAssets UploadedAsset[]
+  orderItems     OrderItem[]
+
+  @@map("designs")
+}
+
+model DesignVersion {
+  id                String   @id @default(cuid())
+  designId          String
+  design            Design   @relation(fields: [designId], references: [id], onDelete: Cascade)
+  versionNumber     Int
+  editorJson        Json     // full canvas/layer state per panel
+  proofUrl          String?
+  productionFileUrl String?
+  createdAt         DateTime @default(now())
+
+  proofs     Proof[]
+  orderItems OrderItem[]
+
+  @@unique([designId, versionNumber])
+  @@map("design_versions")
+}
+
+model UploadedAsset {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  designId   String?
+  design     Design?  @relation(fields: [designId], references: [id], onDelete: SetNull)
+  fileName   String
+  fileUrl    String   // signed URL / storage key — never a permanent public URL
+  fileType   String
+  width      Int?
+  height     Int?
+  dpiEstimate Int?
+  uploadDate DateTime @default(now())
+
+  @@map("uploaded_assets")
+}
+
+model Order {
+  id                String            @id @default(cuid())
+  userId            String
+  user              User              @relation(fields: [userId], references: [id])
+  orderNumber       String            @unique
+  paymentStatus     PaymentStatus     @default(PENDING)
+  artworkStatus     ArtworkStatus     @default(AWAITING_REVIEW)
+  fulfillmentStatus FulfillmentStatus @default(UNFULFILLED)
+  subtotal          Decimal           @db.Decimal(10, 2)
+  shipping          Decimal           @db.Decimal(10, 2)
+  tax               Decimal           @db.Decimal(10, 2)
+  total             Decimal           @db.Decimal(10, 2)
+  createdAt         DateTime          @default(now())
+
+  items    OrderItem[]
+  messages Message[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String        @id @default(cuid())
+  orderId         String
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  designId        String
+  design          Design        @relation(fields: [designId], references: [id])
+  designVersionId String
+  designVersion   DesignVersion @relation(fields: [designVersionId], references: [id])
+  quantity        Int
+  selectedOptions Json
+  unitPrice       Decimal       @db.Decimal(10, 2)
+
+  proofs Proof[]
+
+  @@map("order_items")
+}
+
+model Proof {
+  id              String              @id @default(cuid())
+  orderItemId     String
+  orderItem       OrderItem           @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  designVersionId String
+  designVersion   DesignVersion       @relation(fields: [designVersionId], references: [id])
+  proofUrl        String
+  approvalStatus  ProofApprovalStatus @default(PENDING)
+  customerNotes   String?
+  adminNotes      String?
+  approvedAt      DateTime?
+  approvedByUserId String?
+  approvedIp      String?
+
+  @@map("proofs")
+}
+
+model Message {
+  id            String     @id @default(cuid())
+  userId        String
+  user          User       @relation(fields: [userId], references: [id])
+  orderId       String?
+  order         Order?     @relation(fields: [orderId], references: [id])
+  senderType    SenderType
+  message       String
+  attachmentUrl String?
+  createdAt     DateTime   @default(now())
+
+  @@map("messages")
+}
