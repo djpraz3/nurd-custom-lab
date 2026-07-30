@@ -86,9 +86,6 @@ export default function ConfigureStep({
               }
               className="bg-panel border border-border rounded-md px-3 py-2 text-sm w-40"
             />
-            <div className="text-[11px] text-inkFaint mt-1.5">
-              {MIN_QUANTITY}–{MAX_QUANTITY} units for now
-            </div>
           </Field>
 
           <Field label="Exterior finish">
