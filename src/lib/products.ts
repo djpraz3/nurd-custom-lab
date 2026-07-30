@@ -4,6 +4,10 @@
 
 export const COVER_CHOICES = ["See-through acrylic (1mm)", "Colored cover (1mm, non-see-through)"];
 
+// ETB-only — its rear panel finish is customer-selectable; other products
+// don't offer this option.
+export const REAR_FINISH_CHOICES = ["Holographic back", "Regular", "Textured"];
+
 export interface StarterProduct {
   slug: string;
   name: string;
@@ -15,8 +19,8 @@ export interface StarterProduct {
   depthIn: number;
   minQuantity: number;
   productionDays: string;
-  finishes: string[];
   covers: string[];
+  rearFinishes?: string[];
 }
 
 export const STARTER_PRODUCTS: StarterProduct[] = [
@@ -31,8 +35,8 @@ export const STARTER_PRODUCTS: StarterProduct[] = [
     depthIn: 2.75,
     minQuantity: 1,
     productionDays: "7-10",
-    finishes: ["Matte", "Gloss", "Soft-touch", "Holographic laminate", "Spot gloss", "Foil accents"],
     covers: COVER_CHOICES,
+    rearFinishes: REAR_FINISH_CHOICES,
   },
   {
     slug: "booster-bundle",
@@ -45,7 +49,6 @@ export const STARTER_PRODUCTS: StarterProduct[] = [
     depthIn: 3.25,
     minQuantity: 1,
     productionDays: "5-8",
-    finishes: ["Matte", "Gloss", "Soft-touch", "Foil accents"],
     covers: COVER_CHOICES,
   },
   {
@@ -59,12 +62,12 @@ export const STARTER_PRODUCTS: StarterProduct[] = [
     depthIn: 3.75,
     minQuantity: 1,
     productionDays: "7-10",
-    finishes: ["Matte", "Gloss", "Holographic laminate", "Spot gloss", "Foil accents"],
     covers: COVER_CHOICES,
   },
 ];
 
-export const INSERT_CHOICES = ["None", "Standard insert", "Custom insert"];
+// "Standard insert" removed per request — None / Custom insert only.
+export const INSERT_CHOICES = ["None", "Custom insert"];
 
 // Only relevant when "Colored cover" is picked — the acrylic cover is
 // inherently clear, so color doesn't apply to it.
@@ -84,9 +87,9 @@ export const GRAPHIC_CHOICES = [
 ];
 
 export const OPTION_PRICES = {
-  finish: { Matte: 0, Gloss: 0, "Soft-touch": 4, "Holographic laminate": 8, "Spot gloss": 5, "Foil accents": 6 } as Record<string, number>,
   cover: { "See-through acrylic (1mm)": 6, "Colored cover (1mm, non-see-through)": 0 } as Record<string, number>,
-  insert: { None: 0, "Standard insert": 4, "Custom insert": 6 } as Record<string, number>,
+  insert: { None: 0, "Custom insert": 6 } as Record<string, number>,
   color: {} as Record<string, number>,
   graphic: {} as Record<string, number>,
+  rearFinish: { "Holographic back": 8, Regular: 0, Textured: 3 } as Record<string, number>,
 };

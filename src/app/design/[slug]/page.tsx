@@ -28,11 +28,11 @@ export default async function DesignPage({ params }: { params: Promise<{ slug: s
         heightIn: Number(product.heightIn),
         depthIn: Number(product.depthIn),
       }}
-      finishes={byName("Finish")}
       covers={byName("Cover")}
       inserts={byName("Insert")}
       colors={byName("Color")}
       graphics={byName("Graphic")}
+      rearFinishes={byName("Rear Finish")}
     />
   );
 }

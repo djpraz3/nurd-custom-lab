@@ -1,6 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import { STARTER_PRODUCTS, OPTION_PRICES, INSERT_CHOICES, COLOR_CHOICES, GRAPHIC_CHOICES } from "../src/lib/products";
 
+// Old option groups that no longer exist at all (renamed or dropped outright)
+// — every row under these names should be removed regardless of product.
+const RETIRED_OPTION_NAMES = ["Closure", "Finish"];
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -35,12 +39,6 @@ async function main() {
       choiceLabel: string;
       priceAdjustment: number;
     }[] = [
-      ...p.finishes.map((label) => ({
-        optionName: "Finish",
-        optionType: "select",
-        choiceLabel: label,
-        priceAdjustment: OPTION_PRICES.finish[label] ?? 0,
-      })),
       ...p.covers.map((label) => ({
         optionName: "Cover",
         optionType: "select",
@@ -65,11 +63,37 @@ async function main() {
         choiceLabel: label,
         priceAdjustment: OPTION_PRICES.graphic[label] ?? 0,
       })),
+      ...(p.rearFinishes ?? []).map((label) => ({
+        optionName: "Rear Finish",
+        optionType: "select",
+        choiceLabel: label,
+        priceAdjustment: OPTION_PRICES.rearFinish[label] ?? 0,
+      })),
     ];
 
-    // "Closure" was renamed to "Cover" (acrylic vs. colored cover) — drop
-    // any rows seeded under the old name so stale choices don't linger.
-    await prisma.productOption.deleteMany({ where: { productId: product.id, optionName: "Closure" } });
+    await prisma.productOption.deleteMany({
+      where: { productId: product.id, optionName: { in: RETIRED_OPTION_NAMES } },
+    });
+
+    // Drop any choice under a still-active option group that's no longer
+    // in the current list (e.g. "Standard insert" being removed), so
+    // stale choices don't linger after edits — same idea as the retired
+    // group cleanup above, just scoped per-group instead of dropping the
+    // whole group.
+    const byGroup = new Map<string, string[]>();
+    for (const opt of options) {
+      byGroup.set(opt.optionName, [...(byGroup.get(opt.optionName) ?? []), opt.choiceLabel]);
+    }
+    for (const [optionName, choiceLabels] of byGroup) {
+      await prisma.productOption.deleteMany({
+        where: { productId: product.id, optionName, choiceLabel: { notIn: choiceLabels } },
+      });
+    }
+    // Rear Finish doesn't apply to this product at all (e.g. not ETB) —
+    // remove any rows entirely if the current product no longer lists it.
+    if (!p.rearFinishes) {
+      await prisma.productOption.deleteMany({ where: { productId: product.id, optionName: "Rear Finish" } });
+    }
 
     for (const opt of options) {
       const existing = await prisma.productOption.findFirst({

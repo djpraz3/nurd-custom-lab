@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 // Early on we only want people testing small orders, not bulk buys —
 // revisit once there's a real production pipeline behind this.
@@ -27,39 +28,39 @@ export interface ProductForConfigure {
 
 export default function ConfigureStep({
   product,
-  finishes,
   covers,
   inserts,
   colors,
   graphics,
+  rearFinishes,
 }: {
   product: ProductForConfigure;
-  finishes: OptionChoice[];
   covers: OptionChoice[];
   inserts: OptionChoice[];
   colors: OptionChoice[];
   graphics: OptionChoice[];
+  rearFinishes: OptionChoice[];
 }) {
   const [quantity, setQuantity] = useState(MIN_QUANTITY);
-  const [finish, setFinish] = useState(finishes[0]?.label ?? "");
   const [cover, setCover] = useState(covers[0]?.label ?? "");
   const [insert, setInsert] = useState(inserts[0]?.label ?? "None");
   const [color, setColor] = useState(colors[0]?.label ?? "");
   const [graphic, setGraphic] = useState(graphics[0]?.label ?? "None");
+  const [rearFinish, setRearFinish] = useState(rearFinishes[0]?.label ?? "");
   const [added, setAdded] = useState(false);
 
   // The acrylic cover is inherently clear — color only applies to the
   // solid, non-see-through cover option.
   const coverIsColored = cover.toLowerCase().includes("colored");
 
-  const finishPrice = finishes.find((f) => f.label === finish)?.price ?? 0;
   const coverPrice = covers.find((c) => c.label === cover)?.price ?? 0;
   const insertPrice = inserts.find((i) => i.label === insert)?.price ?? 0;
   const graphicPrice = graphics.find((g) => g.label === graphic)?.price ?? 0;
+  const rearFinishPrice = rearFinishes.find((r) => r.label === rearFinish)?.price ?? 0;
 
   const price = useMemo(
-    () => product.basePrice + finishPrice + coverPrice + insertPrice + graphicPrice,
-    [product.basePrice, finishPrice, coverPrice, insertPrice, graphicPrice]
+    () => product.basePrice + coverPrice + insertPrice + graphicPrice + rearFinishPrice,
+    [product.basePrice, coverPrice, insertPrice, graphicPrice, rearFinishPrice]
   );
 
   return (
@@ -88,10 +89,6 @@ export default function ConfigureStep({
             />
           </Field>
 
-          <Field label="Exterior finish">
-            <Chips options={finishes} value={finish} onChange={setFinish} />
-          </Field>
-
           <Field label="Cover type">
             <Chips options={covers} value={cover} onChange={setCover} />
           </Field>
@@ -99,6 +96,24 @@ export default function ConfigureStep({
           {coverIsColored && (
             <Field label="Cover color">
               <Chips options={colors} value={color} onChange={setColor} swatches />
+            </Field>
+          )}
+
+          {rearFinishes.length > 0 && (
+            <Field label="Rear finish">
+              <Chips options={rearFinishes} value={rearFinish} onChange={setRearFinish} />
+              {rearFinish.toLowerCase().includes("holographic") && (
+                <div className="mt-3 max-w-xs">
+                  <Image
+                    src="/rear-finish-holographic.svg"
+                    alt="Example of the holographic back finish"
+                    width={320}
+                    height={200}
+                    className="rounded-lg border border-border w-full h-auto"
+                  />
+                  <div className="text-[11px] text-inkFaint mt-1.5">Example only — actual finish may vary.</div>
+                </div>
+              )}
             </Field>
           )}
 
@@ -115,9 +130,9 @@ export default function ConfigureStep({
           <div className="sticky top-6 bg-panel border border-border rounded-xl p-6">
             <div className="font-display font-semibold text-sm mb-4">Price breakdown</div>
             <PriceRow label={`Base box (${product.name})`} value={product.basePrice} />
-            {finishPrice > 0 && <PriceRow label={`${finish} finish`} value={finishPrice} />}
             {coverPrice > 0 && <PriceRow label={cover} value={coverPrice} />}
             {coverIsColored && color && <PriceRow label={`${color} color`} value={0} />}
+            {rearFinish && <PriceRow label={`${rearFinish} finish`} value={rearFinishPrice} />}
             {insert !== "None" && <PriceRow label={insert} value={insertPrice} />}
             {graphic !== "None" && <PriceRow label={`${graphic} graphic`} value={graphicPrice} />}
             <div className="h-px bg-border my-3.5" />
