@@ -5,20 +5,24 @@ const prisma = new PrismaClient();
 
 async function main() {
   for (const p of STARTER_PRODUCTS) {
+    const productFields = {
+      name: p.name,
+      description: p.description,
+      basePrice: p.basePrice,
+      productType: p.productType,
+      widthIn: p.widthIn,
+      heightIn: p.heightIn,
+      depthIn: p.depthIn,
+      minQuantity: p.minQuantity,
+      productionDays: p.productionDays,
+    };
+
     const product = await prisma.product.upsert({
       where: { slug: p.slug },
-      update: {},
+      update: productFields,
       create: {
-        name: p.name,
+        ...productFields,
         slug: p.slug,
-        description: p.description,
-        basePrice: p.basePrice,
-        productType: p.productType,
-        widthIn: p.widthIn,
-        heightIn: p.heightIn,
-        depthIn: p.depthIn,
-        minQuantity: p.minQuantity,
-        productionDays: p.productionDays,
         // No 2D/3D editor in this scaffold right now — dielineJson is kept
         // as a bare placeholder purely to satisfy the required DB column.
         dielineJson: { note: "not used — no design editor in this build" },
