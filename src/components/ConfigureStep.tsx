@@ -4,6 +4,11 @@ import { useMemo, useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
+// Early on we only want people testing small orders, not bulk buys —
+// revisit once there's a real production pipeline behind this.
+const MIN_QUANTITY = 1;
+const MAX_QUANTITY = 10;
+
 export interface OptionChoice {
   label: string;
   price: number;
@@ -35,7 +40,7 @@ export default function ConfigureStep({
   colors: OptionChoice[];
   graphics: OptionChoice[];
 }) {
-  const [quantity, setQuantity] = useState(product.minQuantity);
+  const [quantity, setQuantity] = useState(MIN_QUANTITY);
   const [finish, setFinish] = useState(finishes[0]?.label ?? "");
   const [cover, setCover] = useState(covers[0]?.label ?? "");
   const [insert, setInsert] = useState(inserts[0]?.label ?? "None");
@@ -73,12 +78,17 @@ export default function ConfigureStep({
           <Field label="Quantity">
             <input
               type="number"
-              min={product.minQuantity}
+              min={MIN_QUANTITY}
+              max={MAX_QUANTITY}
               value={quantity}
-              onChange={(e) => setQuantity(Math.max(product.minQuantity, Number(e.target.value) || product.minQuantity))}
+              onChange={(e) =>
+                setQuantity(Math.min(MAX_QUANTITY, Math.max(MIN_QUANTITY, Number(e.target.value) || MIN_QUANTITY)))
+              }
               className="bg-panel border border-border rounded-md px-3 py-2 text-sm w-40"
             />
-            <div className="text-[11px] text-inkFaint mt-1.5">Minimum order quantity: {product.minQuantity}</div>
+            <div className="text-[11px] text-inkFaint mt-1.5">
+              {MIN_QUANTITY}–{MAX_QUANTITY} units for now
+            </div>
           </Field>
 
           <Field label="Exterior finish">
