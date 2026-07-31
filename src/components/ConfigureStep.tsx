@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Users, ShieldCheck, Truck, Heart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { GRAPHIC_OPTIONS } from "@/lib/products";
@@ -25,6 +25,7 @@ export interface ProductForConfigure {
   widthIn: number;
   heightIn: number;
   depthIn: number;
+  productionDays: string;
 }
 
 export default function ConfigureStep({
@@ -146,6 +147,39 @@ export default function ConfigureStep({
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-[1040px] mx-auto px-10 pb-14">
+        <div className="grid gap-6 sm:grid-cols-4 border-t border-border pt-8">
+          <TrustBadge icon={Users} title="Made for Collectors" description="Designed by collectors, for collectors." />
+          <TrustBadge icon={ShieldCheck} title="Secure Payments" description="Your payment is safe with us." />
+          <TrustBadge
+            icon={Truck}
+            title="Fast Production"
+            description={`Ships in ${product.productionDays} business days.`}
+          />
+          <TrustBadge icon={Heart} title="Satisfaction Guaranteed" description="Love it or we'll make it right." />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TrustBadge({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <Icon size={18} className="text-violet shrink-0 mt-0.5" />
+      <div>
+        <div className="text-[13px] font-semibold">{title}</div>
+        <div className="text-[11.5px] text-inkFaint mt-0.5">{description}</div>
       </div>
     </div>
   );

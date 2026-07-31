@@ -27,6 +27,7 @@ export default async function DesignPage({ params }: { params: Promise<{ slug: s
         widthIn: Number(product.widthIn),
         heightIn: Number(product.heightIn),
         depthIn: Number(product.depthIn),
+        productionDays: product.productionDays,
       }}
       covers={byName("Cover")}
       colors={byName("Color")}
